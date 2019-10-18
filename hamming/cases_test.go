@@ -64,4 +64,10 @@ var testCases = []struct {
 		0,
 		true,
 	},
+	{			// extra case
+		"aüa",
+		"aÃa",
+	        1,
+		false,
+	},
 }
