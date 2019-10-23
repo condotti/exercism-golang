@@ -1,3 +1,4 @@
+// Package scrabble implements a solution of exercise titled `Scrabble Score'.
 package scrabble
 
 import "strings"
