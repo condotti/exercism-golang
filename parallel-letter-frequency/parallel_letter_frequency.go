@@ -1,10 +1,6 @@
 // Pakcage letter implements a solution of the exercise
 // titled `Parallel Letter Frequency'.
-// Unfortunately this solution passes and failes the test case randomely
-// (so far it seems randomely, i mean).
 package letter
-
-import "sync"
 
 // FreqMap records the frequency of each rune in a given text.
 type FreqMap map[rune]int
@@ -19,31 +15,24 @@ func Frequency(s string) FreqMap {
 	return m
 }
 
-// safeFreqMap is unexported struct, contains FreqMap and a mutex
-type safeFreqMap struct {
-	m FreqMap;
-	sync.Mutex
-	sync.WaitGroup
-}
-
-// frequency is unexported method, counts like Frequency with mutex operation.
-func (m *safeFreqMap)frequency(s string) {
-	m.Add(1)
-	defer m.Done()
-	for _, r := range s {
-		m.Lock()
-		m.m[r]++
-		m.Unlock()
-	}
+// worker is unexported function, which returns a FreqMap of individual text
+// over a channel.
+func worker(s string, c chan FreqMap) {
+	c <- Frequency(s)
 }
 
 // ConcurrentFrequency counts the frequency as function Frequency over
-// array of texts.
-func ConcurrentFrequency(xs []string) FreqMap {
-	m := safeFreqMap{m: FreqMap{}}
-	for _, text := range xs {
-		go m.frequency(text)
+// an array of texts.
+func ConcurrentFrequency(texts []string) FreqMap {
+	cs := make(chan FreqMap, len(texts))
+	for _, text := range texts {
+		go worker(text, cs)
 	}
-	m.Wait()
-	return m.m
+	m := FreqMap{}
+	for range texts {
+		for key, value := range <- cs {
+			m[key] += value
+		}
+	}
+	return m
 }
