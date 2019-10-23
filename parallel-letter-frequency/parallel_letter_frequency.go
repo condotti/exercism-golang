@@ -1,4 +1,4 @@
-// Pakcage letter implements a solution of the exercise
+// Package letter implements a solution of the exercise
 // titled `Parallel Letter Frequency'.
 package letter
 
@@ -30,7 +30,7 @@ func ConcurrentFrequency(texts []string) FreqMap {
 	}
 	m := FreqMap{}
 	for range texts {
-		for key, value := range <- cs {
+		for key, value := range <-cs {
 			m[key] += value
 		}
 	}
