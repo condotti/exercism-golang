@@ -1,3 +1,6 @@
+// package raindrops implements a solution for the
+// exercise of `Raindrops'
+
 package raindrops
 
 import "strconv"
@@ -14,8 +17,8 @@ func Convert(n int) string {
 	if n%7 == 0 {
 		result += "Plong"
 	}
-	if result != "" {
-		return result
+	if result == "" {
+		result = strconv.Itoa(n)
 	}
-	return strconv.Itoa(n)
+	return result
 }
