@@ -1,8 +1,6 @@
 // Package scrabble implements a solution of exercise titled `Scrabble Score'.
 package scrabble
 
-import "strings"
-
 // Score returns a score of the WORD in Scrabble game
 func Score(word string) int {
 	scoreTable := map[string]int{
@@ -14,14 +12,22 @@ func Score(word string) int {
 		"JX":         8,
 		"QZ":         10,
 	}
-	score := 0
-	word = strings.ToUpper(word)
+	var scoreVector [26]int
+
+	for letters, score := range scoreTable {
+		for _, letter := range letters {
+			scoreVector[letter-'A'] = score
+		}
+
+	}
+
+	total := 0
 	for _, letter := range word {
-		for key, value := range scoreTable {
-			if strings.Index(key, string(letter)) >= 0 {
-				score += value
-			}
+		if 'A' <= letter && letter <= 'Z' {
+			total += scoreVector[letter-'A']
+		} else if 'a' <= letter && letter <= 'z' {
+			total += scoreVector[letter-'a']
 		}
 	}
-	return score
+	return total
 }
