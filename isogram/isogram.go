@@ -2,9 +2,8 @@ package isogram
 
 // IsIsogram determines if a WORD or phrase is an isogram
 func IsIsogram(word string) bool {
-	ar := []rune(word)
 	var seen [26]bool
-	for _, letter := range ar {
+	for _, letter := range word {
 		if 'a' <= letter && letter <= 'z' {
 			if seen[letter-'a'] {
 				return false
