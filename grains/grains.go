@@ -13,7 +13,7 @@ func Square(n int) (uint64, error) {
 	// :        :     :        :
 	// 64           2^63 = 0b1...0000
 	if 0 < n && n <= 64 {
-		return 1 << (n-1), nil
+		return 1 << (n - 1), nil
 	}
 	return 0, errors.New("input must be positive")
 }
@@ -21,5 +21,5 @@ func Square(n int) (uint64, error) {
 // Total returns the total number of grains on the chessboard
 func Total() uint64 {
 	// As a comment above, Square(1)+Square(2)+...+Square(64) = 0b1...111 (64bits).
-	return 1 << 64 - 1
+	return 1<<64 - 1
 }
