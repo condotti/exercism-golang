@@ -12,10 +12,10 @@ func Square(n int) (uint64, error) {
 	// 4        8  = 2^3 = 0b0...1000
 	// :        :     :        :
 	// 64           2^63 = 0b1...0000
-	if 0 < n && n <= 64 {
-		return 1 << (n - 1), nil
+	if n < 1 || n > 64 {
+		return 0, errors.New("input must be positive")
 	}
-	return 0, errors.New("input must be positive")
+	return 1 << (n - 1), nil
 }
 
 // Total returns the total number of grains on the chessboard
