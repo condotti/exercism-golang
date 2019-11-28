@@ -15,18 +15,16 @@ func nonNegMod(a, b rune) rune {
 
 // RotationalCipher encodes a plain text with the shift key specified.
 func RotationalCipher(plain string, key int) string {
-	cipher := []rune{}
-	for _, letter := range plain {
+	cipher := []rune(plain)
+	for i, _ := range cipher {
 		switch {
-		case isLower(letter):
-			cipher = append(cipher, nonNegMod(letter-'a'+rune(key), 26)+'a')
-		case isUpper(letter):
-			cipher = append(cipher, nonNegMod(letter-'A'+rune(key), 26)+'A')
-		default:
-			cipher = append(cipher, letter)
+		case isLower(cipher[i]):
+			cipher[i] = nonNegMod(cipher[i]-'a'+rune(key), 26) + 'a'
+		case isUpper(cipher[i]):
+			cipher[i] = nonNegMod(cipher[i]-'A'+rune(key), 26) + 'A'
 		}
 	}
 	return string(cipher)
 }
 
-// BenchmarkRotationalCipher-4   	  403110	      2558 ns/op	    1272 B/op	      34 allocs/op
+// BenchmarkRotationalCipher-4   	  710364	      1775 ns/op	     320 B/op	      10 allocs/op
