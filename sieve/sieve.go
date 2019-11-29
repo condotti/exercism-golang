@@ -3,25 +3,24 @@ package sieve
 
 // Sieve returns all primes from 2 up to a given number.
 func Sieve(limit int) []int {
-	// naive method: seems not efficient
-	number := []int{}
-	for i := 2; i <= limit; i++ {
-		number = append(number, i)
-	}
+	// improved method
+	divisible := make([]bool, limit-1) // [2, limit-1]
 	prime := []int{}
-	for len(number) > 0 {
-		p := number[0]
-		number = number[1:]
-		tmp := []int{}
-		for _, n := range number {
-			if n%p != 0 {
-				tmp = append(tmp, n)
+	for i := range divisible {
+		if !divisible[i] {
+			p := i + 2
+			prime = append(prime, p)
+			for j := range divisible[i+1:] {
+				if !divisible[i+j+1] {
+					n := i + j + 3
+					if n%p == 0 {
+						divisible[i+j+1] = true
+					}
+				}
 			}
 		}
-		number = tmp
-		prime = append(prime, p)
 	}
 	return prime
 }
 
-// BenchmarkSieve-4   	    4010	    291001 ns/op	  366968 B/op	    1309 allocs/op
+// BenchmarkSieve-4   	    4148	    301508 ns/op	    5336 B/op	      21 allocs/op
