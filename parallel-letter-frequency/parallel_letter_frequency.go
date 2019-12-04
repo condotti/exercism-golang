@@ -18,11 +18,11 @@ func Frequency(text string) FreqMap {
 // ConcurrentFrequency counts the frequency as function Frequency over
 // an array of texts.
 func ConcurrentFrequency(texts []string) FreqMap {
-	c := make(chan FreqMap, len(texts))
+	c := make(chan FreqMap, 10)
 	for _, text := range texts {
-		go func(text string, c chan FreqMap) {
+		go func(text string) {
 			c <- Frequency(text)
-		}(text, c)
+		}(text)
 	}
 	fm := FreqMap{}
 	for range texts {
