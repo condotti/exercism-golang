@@ -10,7 +10,6 @@ func IsNumber(n int) bool {
 			n /= 10
 		}
 		return ds
-
 	}(n)
 	sum := 0
 	for _, digit := range digits {
