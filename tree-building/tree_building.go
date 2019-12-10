@@ -1,7 +1,10 @@
 // Package tree implements a solution of the exercise titled `Tree Building'
 package tree
 
-import "errors"
+import (
+	"errors"
+	"sort"
+)
 
 // Record defines input tree format
 type Record struct {
@@ -15,62 +18,34 @@ type Node struct {
 	Children []*Node
 }
 
-func search(id int, p *Node) *Node {
-	if p == nil {
-		return nil // not found
-	}
-	if p.ID == id {
-		return p // found
-	}
-	for _, c := range p.Children {
-		r := search(id, c)
-		if r != nil {
-			return r // found
-		}
-	}
-	return nil // not found
-}
-
 // Build builds a tree represening the structiure of Record r.
 func Build(r []Record) (*Node, error) {
 	if len(r) == 0 {
 		return nil, nil
 	}
-	// path 1: sort r by direct insertion
-	sorted := make([]int, len(r))
-	seen := make([]bool, len(r))
-	sorted[0] = -1 // sentinel
-	for i := range r {
-		if r[i].ID >= len(r) {
-			return nil, errors.New("no root node")
+	sort.Slice(r, func(i, j int) bool { return r[i].ID < r[j].ID })
+	tree := make([]*Node, len(r))
+	for i, inserting := range r {
+		tree[i] = &Node{ID: inserting.ID}
+		if inserting.ID != i {
+			return nil, errors.New("non-continuous")
 		}
-		if seen[r[i].ID] {
-			return nil, errors.New("duplicate node")
-		}
-		sorted[r[i].ID] = r[i].Parent
-		seen[r[i].ID] = true
-	}
-	if sorted[0] != 0 {
-		return nil, errors.New("root node has parent")
-	}
-	// path2: build a tree
-	root := new(Node)
-	for i, j := range sorted {
-		if i != 0 {
-			target := search(j, root)
-			if target == nil {
-				return nil, errors.New("non-continuous")
+		if inserting.ID == 0 {
+			if inserting.Parent != 0 {
+				return nil, errors.New("root node has parent")
 			}
-			p := new(Node)
-			p.ID = i
-			target.Children = append(target.Children, p)
+		} else {
+			if inserting.ID <= inserting.Parent {
+				return nil, errors.New("cycle detected")
+			}
+			tree[inserting.Parent].Children = append(tree[inserting.Parent].Children, tree[i])
 		}
 	}
-	return root, nil
+	return tree[0], nil
 }
 
 /*
-BenchmarkTwoTree-4       	       1	7271018400 ns/op	 3473392 B/op	  131073 allocs/op
-BenchmarkTenTree-4       	       6	 184672867 ns/op	  660225 B/op	   15002 allocs/op
-BenchmarkShallowTree-4   	    1879	    633219 ns/op	  798459 B/op	   10022 allocs/op
+BenchmarkTwoTree-4       	      99	  11595263 ns/op	 3407959 B/op	  131075 allocs/op
+BenchmarkTenTree-4       	     760	   1628585 ns/op	  650016 B/op	   15004 allocs/op
+BenchmarkShallowTree-4   	     829	   1370239 ns/op	  788312 B/op	   10024 allocs/op
 */
