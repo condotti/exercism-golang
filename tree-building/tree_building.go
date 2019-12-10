@@ -68,3 +68,9 @@ func Build(r []Record) (*Node, error) {
 	}
 	return root, nil
 }
+
+/*
+BenchmarkTwoTree-4       	       1	7271018400 ns/op	 3473392 B/op	  131073 allocs/op
+BenchmarkTenTree-4       	       6	 184672867 ns/op	  660225 B/op	   15002 allocs/op
+BenchmarkShallowTree-4   	    1879	    633219 ns/op	  798459 B/op	   10022 allocs/op
+*/
