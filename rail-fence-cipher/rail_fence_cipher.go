@@ -3,21 +3,20 @@ package railfence
 
 import "strings"
 
-func cycle(rails int) []int {
-	cycle := []int{}
-	for i := range make([]int, rails-1) {
+func cycle(n int) (cycle []int) {
+	for i := 0; i < n-1; i++ {
 		cycle = append(cycle, i)
 	}
-	for i := range make([]int, rails-1) {
-		cycle = append(cycle, rails-i-1)
+	for i := 0; i < n-1; i++ {
+		cycle = append(cycle, n-i-1)
 	}
-	return cycle
+	return
 }
 
 // Encode encodes a messeage with specified number of rails.
 func Encode(message string, rails int) string {
-	cycle := cycle(rails)
 	fence := make([]string, rails)
+	cycle := cycle(rails)
 	for i, c := range message {
 		fence[cycle[i%len(cycle)]] += string(c)
 	}
@@ -26,8 +25,8 @@ func Encode(message string, rails int) string {
 
 // Decode decodes a message with specified number of rails.
 func Decode(message string, rails int) string {
-	cycle := cycle(rails)
 	fence := make([][]int, rails)
+	cycle := cycle(rails)
 	for i := range message {
 		fence[cycle[i%len(cycle)]] = append(fence[cycle[i%len(cycle)]], i)
 	}
