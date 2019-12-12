@@ -24,28 +24,24 @@ func Build(r []Record) (*Node, error) {
 		return nil, nil
 	}
 	sort.Slice(r, func(i, j int) bool { return r[i].ID < r[j].ID })
+	if r[0].ID != 0 || r[0].Parent != 0 {
+		return nil, errors.New("invalid input")
+	}
 	tree := make([]*Node, len(r))
-	for i, inserting := range r {
-		tree[i] = &Node{ID: inserting.ID}
-		if inserting.ID != i {
-			return nil, errors.New("non-continuous")
-		}
-		if inserting.ID == 0 {
-			if inserting.Parent != 0 {
-				return nil, errors.New("root node has parent")
-			}
+	tree[0] = &Node{}
+	for i := 1; i < len(r); i++ {
+		if i == r[i].ID && i > r[i].Parent {
+			tree[i] = &Node{ID: i}
+			tree[r[i].Parent].Children = append(tree[r[i].Parent].Children, tree[i])
 		} else {
-			if inserting.ID <= inserting.Parent {
-				return nil, errors.New("cycle detected")
-			}
-			tree[inserting.Parent].Children = append(tree[inserting.Parent].Children, tree[i])
+			return nil, errors.New("invalid input")
 		}
 	}
 	return tree[0], nil
 }
 
 /*
-BenchmarkTwoTree-4       	      99	  11595263 ns/op	 3407959 B/op	  131075 allocs/op
-BenchmarkTenTree-4       	     760	   1628585 ns/op	  650016 B/op	   15004 allocs/op
-BenchmarkShallowTree-4   	     829	   1370239 ns/op	  788312 B/op	   10024 allocs/op
+BenchmarkTwoTree-4       	      97	  11834644 ns/op	 3407956 B/op	  131075 allocs/op
+BenchmarkTenTree-4       	     765	   1659616 ns/op	  650018 B/op	   15004 allocs/op
+BenchmarkShallowTree-4   	     859	   1357301 ns/op	  788312 B/op	   10024 allocs/op
 */
