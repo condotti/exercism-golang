@@ -4,7 +4,7 @@ package stringset
 import "strings"
 
 // Set represnts a custom set with string elements.
-type Set []string
+type Set map[string]int
 
 // New is a ctor of Set.
 func New() Set {
@@ -17,17 +17,16 @@ func NewFromSlice(slice []string) Set {
 	for _, elm := range slice {
 		s.Add(elm)
 	}
-	// fmt.Println("nfs", s)
 	return s
 }
 
 // String is the stringer of Set.
 func (s Set) String() string {
-	slice := []string{}
-	for _, elm := range s {
-		slice = append(slice, `"`+elm+`"`)
+	elements := []string{}
+	for elm, _ := range s {
+		elements = append(elements, `"`+elm+`"`)
 	}
-	return "{" + strings.Join(slice, ", ") + "}"
+	return "{" + strings.Join(elements, ", ") + "}"
 }
 
 // IsEmpty determines the Set is empty or not.
@@ -37,18 +36,14 @@ func (s Set) IsEmpty() bool {
 
 // Has determines the Set includes the element or not.
 func (s Set) Has(element string) bool {
-	for _, elm := range s {
-		if elm == element {
-			return true
-		}
-	}
-	return false
+	_, found := s[element]
+	return found
 }
 
 // Subset determines Set s1 is a subset of Set s2.
 func Subset(s1, s2 Set) bool {
-	for _, element := range s1 {
-		if !s2.Has(element) {
+	for elm, _ := range s1 {
+		if !s2.Has(elm) {
 			return false
 		}
 	}
@@ -66,17 +61,14 @@ func Equal(s1, s2 Set) bool {
 }
 
 // Add adds an element to the Set.
-func (s *Set) Add(element string) {
-	if !s.Has(element) {
-		*s = append(*s, element)
-	}
-	// fmt.Println(s)
+func (s Set) Add(element string) {
+	s[element] = 0
 }
 
 // Intersection returns the intersection of two Sets.
 func Intersection(s1, s2 Set) Set {
 	s := New()
-	for _, elm := range s1 {
+	for elm, _ := range s1 {
 		if s2.Has(elm) {
 			s.Add(elm)
 		}
@@ -87,7 +79,7 @@ func Intersection(s1, s2 Set) Set {
 // Difference teturns the difference of two Sets.
 func Difference(s1, s2 Set) Set {
 	s := New()
-	for _, elm := range s1 {
+	for elm, _ := range s1 {
 		if !s2.Has(elm) {
 			s.Add(elm)
 		}
@@ -97,12 +89,19 @@ func Difference(s1, s2 Set) Set {
 
 // Union returns the union of two Sets.
 func Union(s1, s2 Set) Set {
-	return NewFromSlice(append(s1, s2...))
+	s := New()
+	for elm, _ := range s1 {
+		s.Add(elm)
+	}
+	for elm, _ := range s2 {
+		s.Add(elm)
+	}
+	return s
 }
 
 /*
-BenchmarkNewFromSlice1e1-4   	 2587545	       446 ns/op	     240 B/op	       4 allocs/op
-BenchmarkNewFromSlice1e2-4   	   71619	     14984 ns/op	    2032 B/op	       7 allocs/op
-BenchmarkNewFromSlice1e3-4   	     877	   1410185 ns/op	   32752 B/op	      11 allocs/op
-BenchmarkNewFromSlice1e4-4   	       8	 140751125 ns/op	  473712 B/op	      18 allocs/op
+BenchmarkNewFromSlice1e1-4   	 3100749	       330 ns/op	     256 B/op	       2 allocs/op
+BenchmarkNewFromSlice1e2-4   	  121489	      9826 ns/op	    8020 B/op	       9 allocs/op
+BenchmarkNewFromSlice1e3-4   	   14306	     82124 ns/op	   61523 B/op	      23 allocs/op
+BenchmarkNewFromSlice1e4-4   	    1414	    878131 ns/op	  508066 B/op	     243 allocs/op
 */
