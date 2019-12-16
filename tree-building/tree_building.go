@@ -19,29 +19,26 @@ type Node struct {
 }
 
 // Build builds a tree represening the structiure of Record r.
-func Build(r []Record) (*Node, error) {
-	if len(r) == 0 {
+func Build(record []Record) (*Node, error) {
+	if len(record) == 0 {
 		return nil, nil
 	}
-	sort.Slice(r, func(i, j int) bool { return r[i].ID < r[j].ID })
-	if r[0].ID != 0 || r[0].Parent != 0 {
-		return nil, errors.New("invalid input")
-	}
-	tree := make([]*Node, len(r))
-	tree[0] = &Node{}
-	for i := 1; i < len(r); i++ {
-		if i == r[i].ID && i > r[i].Parent {
-			tree[i] = &Node{ID: i}
-			tree[r[i].Parent].Children = append(tree[r[i].Parent].Children, tree[i])
-		} else {
-			return nil, errors.New("invalid input")
+	sort.Slice(record, func(i, j int) bool { return record[i].ID < record[j].ID })
+	tree := make([]*Node, len(record))
+	for i, r := range record {
+		if r.ID != i || r.Parent > r.ID || r.ID > 0 && r.Parent == r.ID {
+			return nil, errors.New("not in sequence or has bad parent")
+		}
+		tree[i] = &Node{ID: r.ID}
+		if r.ID > 0 {
+			tree[r.Parent].Children = append(tree[r.Parent].Children, tree[i])
 		}
 	}
 	return tree[0], nil
 }
 
 /*
-BenchmarkTwoTree-4       	      97	  11834644 ns/op	 3407956 B/op	  131075 allocs/op
-BenchmarkTenTree-4       	     765	   1659616 ns/op	  650018 B/op	   15004 allocs/op
-BenchmarkShallowTree-4   	     859	   1357301 ns/op	  788312 B/op	   10024 allocs/op
+BenchmarkTwoTree-4       	     100	  11688765 ns/op	 3407954 B/op	  131075 allocs/op
+BenchmarkTenTree-4       	     760	   1650846 ns/op	  650017 B/op	   15004 allocs/op
+BenchmarkShallowTree-4   	     877	   1479511 ns/op	  788312 B/op	   10024 allocs/op
 */
