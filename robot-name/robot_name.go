@@ -8,65 +8,49 @@ import (
 )
 
 // Robot represents a robot
-type Robot int
+type Robot struct {
+	name string
+}
 
 const maxRobots = 26 * 26 * 1000
 
-var conflict [maxRobots]bool
-
-var nRobot int
+var names map[string]int
 
 func init() {
 	rand.Seed(time.Now().UnixNano())
-}
-
-func search(min, max int) int {
-	if min == max {
-		if conflict[min] {
-			return -1 // not found
-		}
-		return min // found
-	}
-	n := (min + max) / 2
-	if conflict[n] {
-		nn := search(min, n)
-		if nn == -1 {
-			return search(n, max)
-		}
-		return nn // found
-	}
-	return n // found
+	names = map[string]int{}
 }
 
 // String is the stringer method.
-func (r *Robot) String() string {
-	n := ^int(*r)
-	return fmt.Sprintf("%c%c%03d", n/26000%26+'A', n/1000%26+'A', n%1000)
+func (r Robot) String() string {
+	return r.name
 }
 
 // Name assigns a name.
 func (r *Robot) Name() (string, error) {
-	if *r == 0 {
-		var n int
-		if nRobot < maxRobots/2 {
-			for n = rand.Intn(maxRobots); conflict[n]; n = rand.Intn(maxRobots) {
-			}
-		} else if nRobot < maxRobots {
-			n = search(0, maxRobots)
-		} else {
-			return "", errors.New("name exhausted")
+	name := func(n int) string {
+		return fmt.Sprintf("%c%c%03d", n/26000+'A', n/1000%26+'A', n%1000)
+	}
+
+	if r.name == "" {
+		if len(names) >= maxRobots {
+			return "", errors.New("name space exhausted")
 		}
-		conflict[n] = true
-		*r = Robot(^n)
-		nRobot++
+		var n string
+		for n = name(rand.Intn(maxRobots)); names[n] != 0; n = name(rand.Intn(maxRobots)) {
+		}
+		names[n] = 1
+		r.name = n
 	}
 	return r.String(), nil
 }
 
 // Reset resets the name of robot
 func (r *Robot) Reset() {
-	conflict[^int(*r)] = false
-	nRobot--
-	*r = 0
+	delete(names, r.name)
+	// Deleting the entry of the directory is required or not?
+	// Name conflict was reported when deleted on the benchmark.
+	// Deleting the entry causes name space depletion on the benchmark.
+	r.name = ""
 	r.Name()
 }
