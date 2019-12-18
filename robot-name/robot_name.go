@@ -14,12 +14,7 @@ type Robot struct {
 
 const maxRobots = 26 * 26 * 1000
 
-var names map[string]int
-
-func init() {
-	rand.Seed(time.Now().UnixNano())
-	names = map[string]int{}
-}
+var names = map[string]int{}
 
 // String is the stringer method.
 func (r Robot) String() string {
@@ -28,29 +23,28 @@ func (r Robot) String() string {
 
 // Name assigns a name.
 func (r *Robot) Name() (string, error) {
-	name := func(n int) string {
-		return fmt.Sprintf("%c%c%03d", n/26000+'A', n/1000%26+'A', n%1000)
+	newName := func() string {
+		r1 := string(rand.Intn(26) + 'A')
+		r2 := string(rand.Intn(26) + 'A')
+		num := rand.Intn(1000)
+		return fmt.Sprintf("%s%s%03d", r1, r2, num)
 	}
 
 	if r.name == "" {
+		rand.Seed(time.Now().UnixNano())
 		if len(names) >= maxRobots {
 			return "", errors.New("name space exhausted")
 		}
-		var n string
-		for n = name(rand.Intn(maxRobots)); names[n] != 0; n = name(rand.Intn(maxRobots)) {
+		var name string
+		for name = newName(); names[name] != 0; name = newName() {
 		}
-		names[n] = 1
-		r.name = n
+		names[name] = 1
+		r.name = name
 	}
 	return r.String(), nil
 }
 
 // Reset resets the name of robot
 func (r *Robot) Reset() {
-	delete(names, r.name)
-	// Deleting the entry of the directory is required or not?
-	// Name conflict was reported when deleted on the benchmark.
-	// Deleting the entry causes name space depletion on the benchmark.
 	r.name = ""
-	r.Name()
 }
