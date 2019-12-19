@@ -14,12 +14,7 @@ type Robot struct {
 
 const maxRobots = 26 * 26 * 1000
 
-var names = map[string]int{}
-
-// String is the stringer method.
-func (r Robot) String() string {
-	return r.name
-}
+var names = map[string]bool{}
 
 // Name assigns a name.
 func (r *Robot) Name() (string, error) {
@@ -35,13 +30,13 @@ func (r *Robot) Name() (string, error) {
 		if len(names) >= maxRobots {
 			return "", errors.New("name space exhausted")
 		}
-		var name string
-		for name = newName(); names[name] != 0; name = newName() {
+		r.name = newName()
+		for names[r.name] {
+			r.name = newName()
 		}
-		names[name] = 1
-		r.name = name
+		names[r.name] = true
 	}
-	return r.String(), nil
+	return r.name, nil
 }
 
 // Reset resets the name of robot
