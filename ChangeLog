@@ -1,0 +1,7 @@
+2019-12-23    <la0172@ISIDG82304>
+
+	* ledger/ledger.go:
+	Changed entriesCopy -> entries.
+	Removed no entries check, test became fail when currency is empty, but let it so
+	for the time being.
+

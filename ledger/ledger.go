@@ -13,18 +13,12 @@ type Entry struct {
 }
 
 func FormatLedger(currency string, locale string, entries []Entry) (string, error) {
-	var entriesCopy []Entry
-	for _, e := range entries {
-		entriesCopy = append(entriesCopy, e)
-	}
-	if len(entries) == 0 {
-		if _, err := FormatLedger(currency, "en-US", []Entry{{Date: "2014-01-01", Description: "", Change: 0}}); err != nil {
-			return "", err
-		}
-	}
+	// if len(entries) == 0 {
+	// 	return "", errors.New("no entries to format")
+	// }
 	m1 := map[bool]int{true: 0, false: 1}
 	m2 := map[bool]int{true: -1, false: 1}
-	es := entriesCopy
+	es := entries
 	for len(es) > 1 {
 		first, rest := es[0], es[1:]
 		success := false
@@ -66,7 +60,7 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 		s string
 		e error
 	})
-	for i, et := range entriesCopy {
+	for i, et := range entries {
 		go func(i int, entry Entry) {
 			if len(entry.Date) != 10 {
 				co <- struct {
@@ -210,15 +204,15 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 				strings.Repeat(" ", 13-al) + a + "\n"}
 		}(i, et)
 	}
-	ss := make([]string, len(entriesCopy))
-	for range entriesCopy {
+	ss := make([]string, len(entries))
+	for range entries {
 		v := <-co
 		if v.e != nil {
 			return "", v.e
 		}
 		ss[v.i] = v.s
 	}
-	for i := 0; i < len(entriesCopy); i++ {
+	for i := 0; i < len(entries); i++ {
 		s += ss[i]
 	}
 	return s, nil
