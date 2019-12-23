@@ -29,16 +29,17 @@ func newName() string {
 
 // Name assigns a name.
 func (r *Robot) Name() (string, error) {
-	if r.name == "" {
-		if len(names) >= maxRobots {
-			return "", errors.New("name space exhausted")
-		}
-		r.name = newName()
-		for names[r.name] {
-			r.name = newName()
-		}
-		names[r.name] = true
+	if r.name != "" {
+		return r.name, nil
 	}
+	if len(names) >= maxRobots {
+		return "", errors.New("name space exhausted")
+	}
+	r.name = newName()
+	for names[r.name] {
+		r.name = newName()
+	}
+	names[r.name] = true
 	return r.name, nil
 }
 
