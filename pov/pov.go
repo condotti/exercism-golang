@@ -53,33 +53,39 @@ func (g *Graph) ArcList() []string {
 	return out
 }
 
-func findPath(fromNode, toNode *Node) []*Node {
-	if fromNode == toNode {
-		return []*Node{fromNode}
-	} else {
-		for child, _ := range fromNode.children {
-			found := findPath(child, toNode)
-			if len(found) > 0 {
-				return append(found, fromNode)
-			}
-		}
-	}
-	return []*Node{}
-}
-
 // ChageRoot returns re-rooted graph.
 func (g *Graph) ChangeRoot(oldRoot, newRoot string) *Graph {
 	if len(g.nodes) > 1 {
-		stack := findPath(g.search(oldRoot), g.search(newRoot))
-		for i := 1; i < len(stack); i++ {
-			stack[i-1].children[stack[i]] = true
-			delete(stack[i].children, stack[i-1])
+		oldRootNode := g.search(oldRoot)
+		newRootNode := g.search(newRoot)
+		stack := []*Node{oldRootNode}
+		seen := map[*Node]bool{}
+		for top := stack[0]; top != newRootNode; top = stack[0] {
+			if !seen[top] {
+				seen[top] = true
+				for child, _ := range top.children {
+					stack = append([]*Node{child}, stack...)
+				}
+			} else {
+				stack = stack[1:]
+			}
+		}
+		seen[newRootNode] = true
+		path := []*Node{}
+		for _, node := range stack {
+			if seen[node] {
+				path = append(path, node)
+			}
+		}
+		for i := 1; i < len(path); i++ {
+			path[i-1].children[path[i]] = true
+			delete(path[i].children, path[i-1])
 		}
 	}
 	return g
 }
 
 /*
-BenchmarkConstructOnlyNoChange-4    	  127990	      8525 ns/op	    5616 B/op	     122 allocs/op
-BenchmarkConstructAndChangeRoot-4   	  101938	     11965 ns/op	    6280 B/op	     140 allocs/op
+BenchmarkConstructOnlyNoChange-4    	  137907	      8866 ns/op	    5616 B/op	     122 allocs/op
+BenchmarkConstructAndChangeRoot-4   	   68355	     17500 ns/op	    7775 B/op	     200 allocs/op
 */
