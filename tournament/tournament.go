@@ -1,7 +1,4 @@
 // package tournament implemets a solution of exercise titled `Tournament'.
-// I referred to the document of the package csv
-// (https://golang.org/pkg/encoding/csv/#example_Reader_options).
-
 package tournament
 
 import (
@@ -16,18 +13,6 @@ import (
 type TeamResult struct {
 	team                    string
 	win, draw, lose, points int
-}
-
-// ByTeam is for sort
-type ByTeam []TeamResult
-
-func (a ByTeam) Len() int      { return len(a) }
-func (a ByTeam) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
-func (a ByTeam) Less(i, j int) bool {
-	if a[i].points == a[j].points {
-		return a[i].team < a[j].team
-	}
-	return a[j].points < a[i].points
 }
 
 // Tally tallies the input containig results of competitions.
@@ -46,39 +31,51 @@ func Tally(sr io.Reader, b io.Writer) error {
 		if len(cols) != 3 {
 			return errors.New("invalid input")
 		}
-		team0, ok := tally[cols[0]]
-		if !ok {
-			team0 = &TeamResult{cols[0], 0, 0, 0, 0}
-			tally[cols[0]] = team0
-		}
-		team1, ok := tally[cols[1]]
-		if !ok {
-			team1 = &TeamResult{cols[1], 0, 0, 0, 0}
-			tally[cols[1]] = team1
+		var team [2]*TeamResult
+		var ok bool
+		for i := range team {
+			team[i], ok = tally[cols[i]]
+			if !ok {
+				team[i] = &TeamResult{team: cols[i]}
+				tally[cols[i]] = team[i]
+			}
 		}
 		switch cols[2] {
 		case "win":
-			team0.win++
-			team1.lose++
+			team[0].win++
+			team[1].lose++
 		case "loss":
-			team0.lose++
-			team1.win++
+			team[0].lose++
+			team[1].win++
 		case "draw":
-			team0.draw++
-			team1.draw++
+			team[0].draw++
+			team[1].draw++
 		default:
 			return errors.New("invalid input")
 		}
 	}
-	recs := ByTeam{}
+	// convert map to slice
+	recs := []*TeamResult{}
 	for _, v := range tally {
 		v.points += v.win*3 + v.draw
-		recs = append(recs, *v)
+		recs = append(recs, v)
 	}
-	sort.Sort(ByTeam(recs))
+	// sort
+	sort.Slice(recs, func(i, j int) bool {
+		if recs[i].points == recs[j].points {
+			return recs[i].team < recs[j].team
+		}
+		return recs[j].points < recs[i].points
+	})
+	// print report
 	fmt.Fprintf(b, "Team                           | MP |  W |  D |  L |  P\n")
 	for _, rec := range recs {
-		fmt.Fprintf(b, "%-30s | %2d | %2d | %2d | %2d | %2d\n", rec.team, rec.win+rec.draw+rec.lose, rec.win, rec.draw, rec.lose, rec.points)
+		fmt.Fprintf(b, "%-30s | %2d | %2d | %2d | %2d | %2d\n",
+			rec.team, rec.win+rec.draw+rec.lose, rec.win, rec.draw, rec.lose, rec.points)
 	}
 	return nil
 }
+
+/*
+BenchmarkTally-4   	   30037	     37920 ns/op	   44022 B/op	     271 allocs/op
+*/
