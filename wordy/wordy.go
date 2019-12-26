@@ -8,33 +8,21 @@ import (
 
 // Answer parses and evaluates simple math word problems returning the answer as an integer.
 func Answer(problem string) (int, bool) {
-	var err interface{}
-	var answer, n int
-	var oper string
-
-	reProb := regexp.MustCompile(`^What is (-?\d+)(.*)\?$`)
-	reOper := regexp.MustCompile(`^ (plus|minus|multiplied by|divided by) (-?\d+)(.*)$`)
-
-	match := reProb.FindAllStringSubmatch(problem, -1)
+	match := regexp.MustCompile(`^\D+\s+(-?\d+)(.*)\?$`).FindAllStringSubmatch(problem, -1)
 	if len(match) != 1 {
 		return 0, false
 	}
-	num, rest := match[0][1], match[0][2]
-	if answer, err = strconv.Atoi(num); err != nil {
-		return 0, false
-	}
+	answer, _ := strconv.Atoi(match[0][1])
+	rest := match[0][2]
 
 	for len(rest) > 0 {
-		match = reOper.FindAllStringSubmatch(rest, -1)
+		match = regexp.MustCompile(`^\s*(\D+)\s+(-?\d+)(.*)$`).FindAllStringSubmatch(rest, -1)
 		if len(match) != 1 {
 			return 0, false
 		}
-		oper, num, rest = match[0][1], match[0][2], match[0][3]
-		if n, err = strconv.Atoi(num); err != nil {
-			return 0, false
-		}
-
-		switch oper {
+		n, _ := strconv.Atoi(match[0][2])
+		rest = match[0][3]
+		switch match[0][1] {
 		case "plus":
 			answer += n
 		case "minus":
