@@ -1,4 +1,4 @@
-// package tournament implemets a solution of exercise titled `Tournament'.
+// Package tournament implemets a solution of exercise titled `Tournament'.
 package tournament
 
 import (
@@ -55,7 +55,7 @@ func Tally(sr io.Reader, b io.Writer) error {
 		}
 	}
 	// convert map to slice
-	recs := []*TeamResult{}
+	recs := make([]*TeamResult, 0, len(tally))
 	for _, v := range tally {
 		v.points += v.win*3 + v.draw
 		recs = append(recs, v)
@@ -68,7 +68,7 @@ func Tally(sr io.Reader, b io.Writer) error {
 		return recs[j].points < recs[i].points
 	})
 	// print report
-	fmt.Fprintf(b, "Team                           | MP |  W |  D |  L |  P\n")
+	fmt.Fprintf(b, "%-30s | %2s | %2s | %2s | %2s | %2s\n", "Team", "MP", "W", "D", "L", "P")
 	for _, rec := range recs {
 		fmt.Fprintf(b, "%-30s | %2d | %2d | %2d | %2d | %2d\n",
 			rec.team, rec.win+rec.draw+rec.lose, rec.win, rec.draw, rec.lose, rec.points)
@@ -77,5 +77,5 @@ func Tally(sr io.Reader, b io.Writer) error {
 }
 
 /*
-BenchmarkTally-4   	   30037	     37920 ns/op	   44022 B/op	     271 allocs/op
+BenchmarkTally-4   	   28579	     39190 ns/op	   43926 B/op	     263 allocs/op
 */
