@@ -10,13 +10,13 @@ import (
 // Garden represents a collection of a child and his/her own grasses.
 type Garden map[string][]string
 
-var plants map[byte]string = map[byte]string{'G': "grass", 'C': "clover", 'R': "radishes", 'V': "violets"}
+var plants = map[byte]string{'G': "grass", 'C': "clover", 'R': "radishes", 'V': "violets"}
 
 // NewGarden is a ctor of Garden
 func NewGarden(diagram string, children []string) (*Garden, error) {
 	for _, c := range diagram {
 		switch c {
-		case 'G', 'C', 'R', 'V', 0x0a:
+		case 'G', 'C', 'R', 'V', '\n':
 			continue
 		default:
 			return nil, errors.New("invalid cup code")
