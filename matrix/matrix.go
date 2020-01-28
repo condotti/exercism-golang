@@ -12,59 +12,53 @@ type Matrix [][]int
 
 // New is ctor of Matrix
 func New(s string) (*Matrix, error) {
-	nM := [][]int{}
+	mtx := Matrix{}
 	for i, r := range strings.Split(s, "\n") {
-		nR := []int{}
+		row := []int{}
 		for _, c := range strings.Split(strings.Trim(r, " "), " ") {
-			x, err := strconv.Atoi(c)
+			v, err := strconv.Atoi(c)
 			if err != nil {
 				return nil, err
 			}
-			nR = append(nR, x)
+			row = append(row, v)
 		}
-		if i != 0 && len(nR) != len(nM[0]) {
+		if i != 0 && len(row) != len(mtx[0]) {
 			return nil, errors.New("uneven rows")
 		}
-		nM = append(nM, nR)
+		mtx = append(mtx, row)
 	}
-	m := Matrix(nM)
-	return &m, nil
+	return &mtx, nil
 }
 
-// Rows returns the rows list
+// Rows returns the list of Matrix's rows
 func (m *Matrix) Rows() [][]int {
-	n := [][]int(*m)
-	nM := [][]int{}
-	for i := 0; i < len(n); i++ {
-		nR := []int{}
-		for j := 0; j < len(n[i]); j++ {
-			nR = append(nR, n[i][j])
-		}
-		nM = append(nM, nR)
+	rows := [][]int{}
+	for _, r := range *m {
+		row := make([]int, len(r))
+		copy(row, r)
+		rows = append(rows, row)
 	}
-	return nM
+	return rows
 }
 
-// Cols returns the columns list
+// Cols returns the list of Matrix's columns
 func (m *Matrix) Cols() [][]int {
-	n := [][]int(*m)
-	nM := [][]int{}
-	for i := 0; i < len(n[0]); i++ {
-		nR := []int{}
-		for j := 0; j < len(n); j++ {
-			nR = append(nR, n[j][i])
+	cols := [][]int{}
+	for i := range (*m)[0] {
+		col := []int{}
+		for j := 0; j < len(*m); j++ {
+			col = append(col, (*m)[j][i])
 		}
-		nM = append(nM, nR)
+		cols = append(cols, col)
 	}
-	return nM
+	return cols
 }
 
 // Set sets the value of specified row and column of Matrix
 func (m *Matrix) Set(r, c, val int) bool {
-	n := [][]int(*m)
-	if r < 0 || r >= len(n) || c < 0 || c >= len(n[0]) {
+	if r < 0 || r >= len(*m) || c < 0 || c >= len((*m)[0]) {
 		return false
 	}
-	n[r][c] = val
+	(*m)[r][c] = val
 	return true
 }
