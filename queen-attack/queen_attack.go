@@ -17,11 +17,15 @@ func CanQueenAttack(black, white string) (attack bool, err error) {
 		ab, aw := []rune(black), []rune(white)
 		b, w := []int{int(ab[0] - 'a'), int(ab[1] - '1')}, []int{int(aw[0] - 'a'), int(aw[1] - '1')}
 		if 0 <= b[0] && b[0] < 8 && 0 <= b[1] && b[1] < 8 &&
-		   0 <= w[0] && w[0] < 8 && 0 <= w[1] && w[1] < 8 &&
-		   !(b[0] == w[0] && b[1] == w[1]) {
+			0 <= w[0] && w[0] < 8 && 0 <= w[1] && w[1] < 8 &&
+			!(b[0] == w[0] && b[1] == w[1]) {
 			return b[0] == w[0] || b[1] == w[1] ||
-			       abs(b[0]-w[0]) == abs(b[1]-w[1]), nil
+				abs(b[0]-w[0]) == abs(b[1]-w[1]), nil
 		}
 	}
 	return false, errors.New("invalid input")
 }
+
+/*
+BenchmarkCanQueenAttack-4   	 1998660	       602 ns/op	      96 B/op	       6 allocs/op
+*/
