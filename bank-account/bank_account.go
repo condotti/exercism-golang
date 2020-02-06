@@ -55,3 +55,8 @@ func (a *Account) Deposit(amount int64) (int64, bool) {
 	}
 	return 0, false
 }
+
+/*
+BenchmarkAccountOperations-4           	13078576	        85.9 ns/op	       0 B/op	       0 allocs/op
+BenchmarkAccountOperationsParallel-4   	 8741289	       144 ns/op	       0 B/op	       0 allocs/op
+*/
